@@ -1,0 +1,73 @@
+{
+	"kind" : "toolchains",
+	"toolchains" : 
+	[
+		{
+			"compiler" : 
+			{
+				"id" : "Clang",
+				"implicit" : 
+				{
+					"includeDirectories" : 
+					[
+						"/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot/usr/include"
+					],
+					"linkDirectories" : [],
+					"linkFrameworkDirectories" : [],
+					"linkLibraries" : []
+				},
+				"path" : "/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm/bin/clang",
+				"target" : "aarch64-linux-ohos",
+				"version" : "15.0.4"
+			},
+			"language" : "C",
+			"sourceFileExtensions" : 
+			[
+				"c",
+				"m"
+			]
+		},
+		{
+			"compiler" : 
+			{
+				"id" : "Clang",
+				"implicit" : 
+				{
+					"includeDirectories" : 
+					[
+						"/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot/usr/include"
+					],
+					"linkDirectories" : [],
+					"linkFrameworkDirectories" : [],
+					"linkLibraries" : []
+				},
+				"path" : "/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm/bin/clang++",
+				"target" : "aarch64-linux-ohos",
+				"version" : "15.0.4"
+			},
+			"language" : "CXX",
+			"sourceFileExtensions" : 
+			[
+				"C",
+				"M",
+				"c++",
+				"cc",
+				"cpp",
+				"cxx",
+				"mm",
+				"mpp",
+				"CPP",
+				"ixx",
+				"cppm",
+				"ccm",
+				"cxxm",
+				"c++m"
+			]
+		}
+	],
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

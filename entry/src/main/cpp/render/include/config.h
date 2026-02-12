@@ -1,0 +1,14 @@
+//
+// Created by bilibili on 2026/2/11.
+//
+
+#ifndef VKNDKEXAMPLE_CONFIG_H
+#define VKNDKEXAMPLE_CONFIG_H
+
+struct Settings
+{
+    // todo 鸿蒙现在支持校验层了吗？
+    bool enableValida;
+};
+
+#endif //VKNDKEXAMPLE_CONFIG_H

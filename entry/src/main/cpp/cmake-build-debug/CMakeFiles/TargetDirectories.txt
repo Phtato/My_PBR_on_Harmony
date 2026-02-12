@@ -1,0 +1,6 @@
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/CMakeFiles/entry.dir
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/render/CMakeFiles/render.dir
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/render/CMakeFiles/edit_cache.dir
+/Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug/render/CMakeFiles/rebuild_cache.dir

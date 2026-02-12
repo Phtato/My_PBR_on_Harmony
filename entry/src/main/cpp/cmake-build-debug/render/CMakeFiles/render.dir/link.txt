@@ -1,0 +1,2 @@
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm/bin/llvm-ar qc librender.a CMakeFiles/render.dir/main.cpp.o CMakeFiles/render.dir/src/vulkan_base.cpp.o
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm/bin/llvm-ranlib librender.a

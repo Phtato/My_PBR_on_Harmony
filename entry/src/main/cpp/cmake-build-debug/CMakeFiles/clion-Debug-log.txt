@@ -1,0 +1,5 @@
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/build-tools/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S /Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp -B /Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug
+-- Using CMAKE_TOOLCHAIN_FILE='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake'
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/bilibili/Desktop/tujiaming/pbrtVulkan/vk-NDK-Example/entry/src/main/cpp/cmake-build-debug
