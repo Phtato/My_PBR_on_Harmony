@@ -3,6 +3,8 @@
 #include <iostream>
 #include <set>
 #include <stdexcept>
+
+#include "VulkanConfig.h"
 #include "render/include/common.h"
 
 VkResult VulkanBase::InitVulkan()
@@ -15,8 +17,8 @@ VkResult VulkanBase::InitVulkan()
 
     VK_CHECK(this->SelectPhysicalDevice());
     VK_CHECK(this->CreateLogicalDevice());
-
-
+    VK_CHECK(this->CreateSurface());
+    this->initSurface();
 
 }
 
@@ -124,3 +126,119 @@ VkResult VulkanBase::CreateLogicalDevice()
 
     return vkCreateDevice(physicalDevice_, &deviceCreateInfo, nullptr, &logicalDevice_);
 }
+
+VkResult VulkanBase::CreateSurface()
+{
+    const VkSurfaceCreateInfoOHOS create_info{
+        .sType = VK_STRUCTURE_TYPE_SURFACE_CREATE_INFO_OHOS,
+        .pNext = nullptr,
+        .flags = 0,
+        .window = VulkanConfig::getInstance().getWindow()
+    };
+
+   return vkCreateSurfaceOHOS(instance_, &create_info, nullptr, &surface);
+}
+
+void VulkanBase::initSurface()
+{
+    uint32_t queueCount;
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice_, &queueCount, nullptr);
+    std::vector<VkQueueFamilyProperties> queueProps(queueCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice_, &queueCount, queueProps.data());
+
+    std::vector<VkBool32> supportsPresent(queueCount);
+    for (uint32_t i = 0; i < queueCount; i++)
+    {
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice_, i, surface, &supportsPresent[i]);
+    }
+
+    uint32_t graphicsQueueNodeIndex = UINT32_MAX;
+    uint32_t presentQueueNodeIndex = UINT32_MAX;
+
+    for (uint32_t i = 0; i < queueCount; i++)
+    {
+        if ((queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0)
+        {
+            if (graphicsQueueNodeIndex == UINT32_MAX)
+            {
+                graphicsQueueNodeIndex = i;
+            }
+
+            if (supportsPresent[i] == VK_TRUE)
+            {
+                graphicsQueueNodeIndex = i;
+                presentQueueNodeIndex = i;
+                break;
+            }
+        }
+    }
+    if (presentQueueNodeIndex == UINT32_MAX)
+    {
+        for (uint32_t i = 0; i < queueCount; ++i)
+        {
+            if (supportsPresent[i] == VK_TRUE)
+            {
+                presentQueueNodeIndex = i;
+                break;
+            }
+        }
+    }
+
+    if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX)
+        throw std::runtime_error("Could not find a graphics and/or presenting queue!");
+
+    if (graphicsQueueNodeIndex != presentQueueNodeIndex)
+        throw std::runtime_error("Separate graphics and presenting queues are not supported yet!");
+
+    queueNodeIndex = graphicsQueueNodeIndex;
+
+    // Get list of supported surface formats
+    uint32_t formatCount;
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface, &formatCount, NULL));
+
+    std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice_, surface, &formatCount, surfaceFormats.data()));
+
+    VkSurfaceFormatKHR selectedFormat = surfaceFormats[0];
+
+#ifdef HDR
+// todo 研究下hdr
+    std::vector<VkFormat> preferredImageFormats = {
+            VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+    };
+#else
+    std::vector<VkFormat> preferredImageFormats = {
+            VK_FORMAT_B8G8R8A8_SRGB,
+            VK_FORMAT_R8G8B8A8_SRGB,
+            VK_FORMAT_A8B8G8R8_SRGB_PACK32,
+    };
+#endif
+
+    for (auto& availableFormat : surfaceFormats) {
+        if (std::find(preferredImageFormats.begin(), preferredImageFormats.end(), availableFormat.format) != preferredImageFormats.end()) {
+            selectedFormat = availableFormat;
+            break;
+        }
+    }
+
+    colorFormat = selectedFormat.format;
+    colorSpace = selectedFormat.colorSpace;
+
+}
+
+VkResult VulkanBase::CreateSwapChain()
+{
+// todo 还需要考虑swapChain是被重新创建而非新建的情况，尽管这在手机上并不常见
+    VkSurfaceCapabilitiesKHR surfCaps;
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice_, surface, &surfCaps));
+
+}
+
+
+
+
+
+
+
+
+

@@ -18,7 +18,14 @@ private:
     VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
     std::vector<VkQueueFamilyProperties> queueFamilies;
     VkDevice logicalDevice_;
+    // todo 考虑吧swapchain相关的拆出来
+    VkSwapchainKHR swapChain_ = VK_NULL_HANDLE;
     VkQueueFamilyProperties queueFamily_;       // 选择的队列族索引
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    uint32_t queueNodeIndex = UINT32_MAX;
+
+    VkFormat colorFormat;
+    VkColorSpaceKHR colorSpace;
 
     VkResult CreateInstance();
 
@@ -28,7 +35,11 @@ private:
 
     VkResult CreateLogicalDevice();
 
+    VkResult CreateSurface();
 
+    void initSurface();
+
+    VkResult CreateSwapChain();
 public:
     VulkanBase(const VulkanBase&) = delete;
     VulkanBase& operator=(const VulkanBase&) = delete;

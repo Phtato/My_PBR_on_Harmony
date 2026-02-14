@@ -17,17 +17,13 @@
 
 // 在定义 LOG_DOMAIN 和 LOG_TAG 之后包含自定义流缓冲区
 #include "include/nativeStreamBuf.h"
+#include "include/VulkanConfig.h"
 
 // 全局 DeviceBuf 实例
 static DeviceBuf deviceBuf;
 
-namespace vulkanNdkEnvInfo {
-    std::string ohosPath;  // 使用 std::string 安全存储路径
-    constexpr size_t EXPECTED_PARAMS = 1U;
-    NativeResourceManager *m_aAssetMgr;
-    OHNativeWindow *window;
-    bool isDestroy;
-} // namespace vulkanNdkEnvInfo
+// Constants
+constexpr size_t EXPECTED_PARAMS = 1U;
 
 void redirectStreamBuf() {
     std::cout.rdbuf(&deviceBuf); // 重定向 cout 到 hilog
@@ -42,10 +38,11 @@ napi_value TransferSandboxPath(napi_env env, napi_callback_info info) {
     size_t pathSize;
     char pathBuf[256];
     napi_get_value_string_utf8(env, argv[0], pathBuf, sizeof(pathBuf), &pathSize);
-    // 将路径存储到全局 std::string 中，确保在后续调用中可以安全访问
-    vulkanNdkEnvInfo::ohosPath = std::string(pathBuf, pathSize);
+    // 将路径存储到全局配置中，确保在后续调用中可以安全访问
+    std::string path(pathBuf, pathSize);
+    VulkanConfig::getInstance().setOhosPath(path);
     
-    OH_LOG_INFO(LOG_APP, "Sandbox path saved: %{public}s", vulkanNdkEnvInfo::ohosPath.c_str());
+    OH_LOG_INFO(LOG_APP, "Sandbox path saved: %{public}s", path.c_str());
     return nullptr;
 }
 
@@ -140,8 +137,8 @@ void copyRawFileRecursive(NativeResourceManager *resMgr, const std::string &rawP
 }
 
 napi_value createResourceManagerInstance(napi_env env, napi_callback_info info) {
-    size_t argc = vulkanNdkEnvInfo::EXPECTED_PARAMS;
-    napi_value argv[vulkanNdkEnvInfo::EXPECTED_PARAMS]{};
+    size_t argc = EXPECTED_PARAMS;
+    napi_value argv[EXPECTED_PARAMS]{};
 
     auto result = napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (result != napi_ok) {
@@ -149,23 +146,24 @@ napi_value createResourceManagerInstance(napi_env env, napi_callback_info info) 
         return nullptr;
     }
 
-    if (argc != vulkanNdkEnvInfo::EXPECTED_PARAMS) {
+    if (argc != EXPECTED_PARAMS) {
         throw std::runtime_error("Core::OnCreate - Parameters expected: %zu, got: %zu");
         return nullptr;
     }
 
     if (NativeResourceManager *rm = OH_ResourceManager_InitNativeResourceManager(env, argv[0]); rm) {
-        vulkanNdkEnvInfo::m_aAssetMgr = rm;
+        VulkanConfig::getInstance().setResourceManager(rm);
     }
 
     // 递归复制 data 目录下的所有内容到沙箱目录
-    if (vulkanNdkEnvInfo::m_aAssetMgr && !vulkanNdkEnvInfo::ohosPath.empty()) {
-        std::string destPath = vulkanNdkEnvInfo::ohosPath + "/data";
+    auto& config = VulkanConfig::getInstance();
+    if (config.getResourceManager() && !config.getOhosPath().empty()) {
+        std::string destPath = config.getOhosPath() + "/data";
         OH_LOG_INFO(LOG_APP, "Starting to copy data directory to: %{public}s", destPath.c_str());
-        copyRawFileRecursive(vulkanNdkEnvInfo::m_aAssetMgr, "data", destPath);
+        copyRawFileRecursive(config.getResourceManager(), "data", destPath);
         OH_LOG_INFO(LOG_APP, "Finished copying data directory");
     } else {
-        if (vulkanNdkEnvInfo::ohosPath.empty()) {
+        if (config.getOhosPath().empty()) {
             OH_LOG_ERROR(LOG_APP, "Sandbox path not set. Please call transferSandboxPath first.");
         }
     }
@@ -176,10 +174,12 @@ napi_value createResourceManagerInstance(napi_env env, napi_callback_info info) 
 // XComponent在创建Surface时的回调函数
 void OnSurfaceCreatedCB(OH_NativeXComponent *component, void *window) {
     // 在回调函数里可以拿到OHNativeWindow
-    vulkanNdkEnvInfo::window = static_cast<OHNativeWindow *>(window);
+    VulkanConfig::getInstance().setWindow(static_cast<OHNativeWindow *>(window));
 }
 
-void OnDestroyCB(OH_NativeXComponent *component, void *window) { vulkanNdkEnvInfo::isDestroy = true; }
+void OnDestroyCB(OH_NativeXComponent *component, void *window) { 
+    VulkanConfig::getInstance().setDestroy(true); 
+}
 
 OH_NativeXComponent_Callback callback;
 EXTERN_C_START
