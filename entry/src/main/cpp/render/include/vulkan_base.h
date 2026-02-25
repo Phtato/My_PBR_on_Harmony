@@ -16,26 +16,26 @@ class VulkanBase
 {
 private:
     VkInstance instance_ = VK_NULL_HANDLE;
-    VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
-    std::vector<VkQueueFamilyProperties> queueFamilies;
-    VkDevice logicalDevice_;
+    VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+    std::vector<VkQueueFamilyProperties> queue_families_;
+    VkDevice logical_device_;
     // todo 考虑吧swapchain相关的拆出来
-    VkQueueFamilyProperties queueFamily_;       // 选择的队列族索引
+    VkQueueFamilyProperties queue_family_;       // 选择的队列族索引
 
-    VkFormat colorFormat;
-    VkColorSpaceKHR colorSpace;
+    VkFormat color_format_;
+    VkColorSpaceKHR color_space_;
 
     VkResult CreateInstance();
 
     VkResult SelectPhysicalDevice();
 
-    uint32_t getQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
+    uint32_t GetQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
 
     VkResult CreateLogicalDevice();
 
     VkResult CreateSurface();
 
-    void initSurface();
+    void InitSurface();
 
     VkResult CreateSwapChain();
 public:
@@ -44,8 +44,8 @@ public:
     VulkanBase(VulkanBase&&) = delete;
     VulkanBase& operator=(VulkanBase&&) = delete;
 
-    Settings settings;
-    std::unique_ptr<VulkanSwapChain> swapChain;
+    Settings settings_;
+    std::unique_ptr<VulkanSwapChain> swap_chain_;
 
     VkResult InitVulkan(uint32_t width, uint32_t height);
 };

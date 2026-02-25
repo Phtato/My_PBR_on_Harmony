@@ -11,15 +11,15 @@ VkResult VulkanBase::InitVulkan(uint32_t width, uint32_t height)
 {
     VK_CHECK(this->CreateInstance());
 
-    if (settings.enableValida) {
+    if (settings_.enableValida) {
         // todo 鸿蒙现在是否支持了？
     }
 
     VK_CHECK(SelectPhysicalDevice());
     VK_CHECK(CreateLogicalDevice());
     VK_CHECK(CreateSurface());
-    this->initSurface();
-    swapChain = std::make_unique<VulkanSwapChain>(instance_, settings);
+    this->InitSurface();
+    swap_chain_ = std::make_unique<VulkanSwapChain>(instance_, settings_, physical_device_, logical_device_);
 
 }
 
@@ -36,7 +36,7 @@ VkResult VulkanBase::CreateInstance()
     instanceExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     instanceExtensions.push_back(VK_OHOS_SURFACE_EXTENSION_NAME);
 
-    if (this->settings.enableValida)
+    if (this->settings_.enableValida)
     {
         instanceExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
     }
@@ -67,25 +67,25 @@ VkResult VulkanBase::SelectPhysicalDevice()
         throw std::runtime_error("no gpu");
     }
     // 显然你不可能在手机上找到两个gpu
-    physicalDevice_ = devices[0];
+    physical_device_ = devices[0];
 
     return VK_SUCCESS;
 }
 
-uint32_t VulkanBase::getQueueFamilyIndex(VkQueueFlagBits queueFlags) const
+uint32_t VulkanBase::GetQueueFamilyIndex(VkQueueFlagBits queueFlags) const
 {
     if (queueFlags & VK_QUEUE_COMPUTE_BIT)
     {
-        for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); i++) {
-            if ((queueFamilies[i].queueFlags & queueFlags) && ((queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families_.size()); i++) {
+            if ((queue_families_[i].queueFlags & queueFlags) && ((queue_families_[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
                 return i;
                 break;
             }
         }
     }
 
-    for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilies.size()); i++) {
-        if (queueFamilies[i].queueFlags & queueFlags) {
+    for (uint32_t i = 0; i < static_cast<uint32_t>(queue_families_.size()); i++) {
+        if (queue_families_[i].queueFlags & queueFlags) {
             return i;
             break;
         }
@@ -97,14 +97,14 @@ uint32_t VulkanBase::getQueueFamilyIndex(VkQueueFlagBits queueFlags) const
 VkResult VulkanBase::CreateLogicalDevice()
 {
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice_, &queueFamilyCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueFamilyCount, nullptr);
 
-    queueFamilies.resize(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice_, &queueFamilyCount, queueFamilies.data());
+    queue_families_.resize(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueFamilyCount, queue_families_.data());
 
     VkDeviceQueueCreateInfo queueInfo{};
     queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueInfo.queueFamilyIndex = getQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT);
+    queueInfo.queueFamilyIndex = GetQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT);
     queueInfo.queueCount = 1;
     float queuePriority = 1.0f;
     queueInfo.pQueuePriorities = &queuePriority;
@@ -125,7 +125,7 @@ VkResult VulkanBase::CreateLogicalDevice()
     deviceCreateInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    return vkCreateDevice(physicalDevice_, &deviceCreateInfo, nullptr, &logicalDevice_);
+    return vkCreateDevice(physical_device_, &deviceCreateInfo, nullptr, &logical_device_);
 }
 
 

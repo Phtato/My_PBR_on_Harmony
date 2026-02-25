@@ -9,11 +9,11 @@
 #include "VulkanConfig.h"
 #include "render/include/common.h"
 
-VulkanSwapChain::VulkanSwapChain(VkInstance instance, Settings settings, VkPhysicalDevice physicalDevice, VkDevice m_device)
-    : m_instance(instance),
-      m_settings(settings),
-      m_physical_device(physicalDevice),
-      m_device(m_device)
+VulkanSwapChain::VulkanSwapChain(VkInstance instance, Settings settings, VkPhysicalDevice physicalDevice, VkDevice device)
+    : instance_(instance),
+      settings_(settings),
+      physical_device_(physicalDevice),
+      device_(device)
 {
 
 }
@@ -27,20 +27,20 @@ VkResult VulkanSwapChain::CreateSurface()
         .window = VulkanConfig::getInstance().getWindow()
     };
 
-    return vkCreateSurfaceOHOS(m_instance, &create_info, nullptr, &m_surface);
+    return vkCreateSurfaceOHOS(instance_, &create_info, nullptr, &surface_);
 }
 
-void VulkanSwapChain::initSurface()
+void VulkanSwapChain::InitSurface()
 {
     uint32_t queueCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queueCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueProps(queueCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &queueCount, queueProps.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueCount, queueProps.data());
 
     std::vector<VkBool32> supportsPresent(queueCount);
     for (uint32_t i = 0; i < queueCount; i++)
     {
-        vkGetPhysicalDeviceSurfaceSupportKHR(m_physical_device, i, m_surface, &supportsPresent[i]);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device_, i, surface_, &supportsPresent[i]);
     }
 
     uint32_t graphicsQueueNodeIndex = UINT32_MAX;
@@ -81,14 +81,14 @@ void VulkanSwapChain::initSurface()
     if (graphicsQueueNodeIndex != presentQueueNodeIndex)
         throw std::runtime_error("Separate graphics and presenting queues are not supported yet!");
 
-    queueNodeIndex = graphicsQueueNodeIndex;
+    queue_node_index_ = graphicsQueueNodeIndex;
 
     // Get a list of supported surface formats
     uint32_t formatCount;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical_device, m_surface, &formatCount, NULL));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device_, surface_, &formatCount, NULL));
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical_device, m_surface, &formatCount, surfaceFormats.data()));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device_, surface_, &formatCount, surfaceFormats.data()));
 
     VkSurfaceFormatKHR selectedFormat = surfaceFormats[0];
 
@@ -112,41 +112,41 @@ void VulkanSwapChain::initSurface()
         }
     }
 
-    m_color_format = selectedFormat.format;
-    m_color_space = selectedFormat.colorSpace;
+    color_format_ = selectedFormat.format;
+    color_space_ = selectedFormat.colorSpace;
 
 }
 
 
 VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
 {
-	VkSwapchainKHR oldSwapchain = m_swapChain;
+	VkSwapchainKHR oldSwapchain = swap_chain_;
 
     // todo 还需要考虑swapChain是被重新创建而非新建的情况，尽管这在手机上应该不常见吧....
     // 获取 surface 的能力集
     VkSurfaceCapabilitiesKHR surfCaps;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physical_device, m_surface, &surfCaps));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device_, surface_, &surfCaps));
 
     // 获取支持的 present 模式
     uint32_t presentModeCount;
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physical_device, m_surface, &presentModeCount, nullptr));
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device_, surface_, &presentModeCount, nullptr));
     std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(m_physical_device, m_surface, &presentModeCount, presentModes.data()));
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device_, surface_, &presentModeCount, presentModes.data()));
 
     if (surfCaps.currentExtent.width == (uint32_t)-1)
     {
-        m_settings.extent.width = *width;
-        m_settings.extent.height = *height;
+        settings_.extent.width = *width;
+        settings_.extent.height = *height;
     }
     else
     {
-        m_settings.extent = surfCaps.currentExtent;
+        settings_.extent = surfCaps.currentExtent;
         *width = surfCaps.currentExtent.width;
         *height = surfCaps.currentExtent.height;
     }
 
     VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-    if (!m_settings.vsync)
+    if (!settings_.vsync)
     {
         for (size_t i = 0; i < presentModeCount; i++)
         {
@@ -197,11 +197,11 @@ VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
 		VkSwapchainCreateInfoKHR swapchainCI = {};
 		swapchainCI.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		swapchainCI.pNext = NULL;
-		swapchainCI.surface = m_surface;
+		swapchainCI.surface = surface_;
 		swapchainCI.minImageCount = desiredNumberOfSwapchainImages;
-		swapchainCI.imageFormat = m_color_format;
-		swapchainCI.imageColorSpace = m_color_space;
-		swapchainCI.imageExtent = { m_settings.extent.width, m_settings.extent.height };
+		swapchainCI.imageFormat = color_format_;
+		swapchainCI.imageColorSpace = color_space_;
+		swapchainCI.imageExtent = { settings_.extent.width, settings_.extent.height };
 		swapchainCI.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		swapchainCI.preTransform = (VkSurfaceTransformFlagBitsKHR)preTransform;
 		swapchainCI.imageArrayLayers = 1;
@@ -210,43 +210,43 @@ VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
 		swapchainCI.pQueueFamilyIndices = NULL;
 		swapchainCI.presentMode = swapchainPresentMode;
 		swapchainCI.oldSwapchain = oldSwapchain;
-		// Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
+		// Setting clipped to VK_TRUE allows the implementation to discard rendering outside the surface area
 		swapchainCI.clipped = VK_TRUE;
 		swapchainCI.compositeAlpha = compositeAlpha;
 
 		// Set additional usage flag for blitting from the swapchain images if supported
 		VkFormatProperties formatProps;
-		vkGetPhysicalDeviceFormatProperties(m_physical_device, m_color_format, &formatProps);
+		vkGetPhysicalDeviceFormatProperties(physical_device_, color_format_, &formatProps);
 		if ((formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR) || (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT)) {
 			swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 		}
 
-		VK_CHECK(vkCreateSwapchainKHR(m_device, &swapchainCI, nullptr, &m_swapChain));
+		VK_CHECK(vkCreateSwapchainKHR(device_, &swapchainCI, nullptr, &swap_chain_));
 
 		// If an existing swap chain is re-created, destroy the old swap chain
 		// This also cleans up all the presentable images
 		if (oldSwapchain != VK_NULL_HANDLE)
 		{
-			for (uint32_t i = 0; i < imageCount; i++)
+			for (uint32_t i = 0; i < image_count_; i++)
 			{
-				vkDestroyImageView(m_device, buffers[i].view, nullptr);
+				vkDestroyImageView(device_, buffers_[i].view, nullptr);
 			}
-			vkDestroySwapchainKHR(m_device, oldSwapchain, nullptr);
+			vkDestroySwapchainKHR(device_, oldSwapchain, nullptr);
 		}
-		VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, NULL));
+		VK_CHECK(vkGetSwapchainImagesKHR(device_, swap_chain_, &image_count_, NULL));
 
 		// Get the swap chain images
-		images.resize(imageCount);
-		VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, images.data()));
+		images_.resize(image_count_);
+		VK_CHECK(vkGetSwapchainImagesKHR(device_, swap_chain_, &image_count_, images_.data()));
 
 		// Get the swap chain buffers containing the image and imageview
-		buffers.resize(imageCount);
-		for (uint32_t i = 0; i < imageCount; i++)
+		buffers_.resize(image_count_);
+		for (uint32_t i = 0; i < image_count_; i++)
 		{
 			VkImageViewCreateInfo colorAttachmentView = {};
 			colorAttachmentView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			colorAttachmentView.pNext = NULL;
-			colorAttachmentView.format = m_color_format;
+			colorAttachmentView.format = color_format_;
 			colorAttachmentView.components = {
 				VK_COMPONENT_SWIZZLE_R,
 				VK_COMPONENT_SWIZZLE_G,
@@ -261,11 +261,11 @@ VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
 			colorAttachmentView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			colorAttachmentView.flags = 0;
 
-			buffers[i].image = images[i];
+			buffers_[i].image = images_[i];
 
-			colorAttachmentView.image = buffers[i].image;
+			colorAttachmentView.image = buffers_[i].image;
 
-			VK_CHECK(vkCreateImageView(m_device, &colorAttachmentView, nullptr, &buffers[i].view));
+			VK_CHECK(vkCreateImageView(device_, &colorAttachmentView, nullptr, &buffers_[i].view));
 		}
-
+	return VK_SUCCESS;
 }

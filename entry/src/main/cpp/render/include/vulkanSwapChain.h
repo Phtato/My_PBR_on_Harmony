@@ -20,6 +20,7 @@ public:
     VulkanSwapChain(VkInstance instance, Settings settings, VkPhysicalDevice physicalDevice, VkDevice m_device);
     VkResult CreateSurface();
     VkResult CreateSwapChain(uint32_t *width, uint32_t *height);
+    void InitSurface();
 
     VulkanSwapChain() = default;
     VulkanSwapChain(const VulkanSwapChain&) = delete;
@@ -28,19 +29,18 @@ public:
     VulkanSwapChain& operator=(VulkanSwapChain&&) = delete;
 
 private:
-    VkInstance m_instance;
-    Settings m_settings;
-    VkFormat m_color_format;
-    VkColorSpaceKHR m_color_space;
-    uint32_t imageCount;
-    std::vector<SwapChainBuffer> buffers;
-    std::vector<VkImage> images;
-    uint32_t queueNodeIndex = UINT32_MAX;
-    VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
-    VkDevice m_device;
-    VkSurfaceKHR m_surface = VK_NULL_HANDLE;
-    VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
-    void initSurface();
+    VkInstance instance_;
+    Settings settings_;
+    VkFormat color_format_;
+    VkColorSpaceKHR color_space_;
+    uint32_t image_count_;
+    std::vector<SwapChainBuffer> buffers_;
+    std::vector<VkImage> images_;
+    uint32_t queue_node_index_ = UINT32_MAX;
+    VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+    VkDevice device_;
+    VkSurfaceKHR surface_ = VK_NULL_HANDLE;
+    VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 };
 
 
