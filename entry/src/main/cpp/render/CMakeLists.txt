@@ -4,6 +4,8 @@ add_library(render STATIC
         src/vulkan_base.cpp
         include/common.h
         include/config.h
+        src/vulkanSwapChain.cpp
+        include/vulkanSwapChain.h
 )
 
 # Enable C++20 module support for render library

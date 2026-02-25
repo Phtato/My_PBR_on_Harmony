@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.h>
 
 #include "config.h"
+#include "vulkanSwapChain.h"
 
 class VulkanBase
 {
@@ -19,10 +20,7 @@ private:
     std::vector<VkQueueFamilyProperties> queueFamilies;
     VkDevice logicalDevice_;
     // todo 考虑吧swapchain相关的拆出来
-    VkSwapchainKHR swapChain_ = VK_NULL_HANDLE;
     VkQueueFamilyProperties queueFamily_;       // 选择的队列族索引
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-    uint32_t queueNodeIndex = UINT32_MAX;
 
     VkFormat colorFormat;
     VkColorSpaceKHR colorSpace;
@@ -47,7 +45,9 @@ public:
     VulkanBase& operator=(VulkanBase&&) = delete;
 
     Settings settings;
-    VkResult InitVulkan();
+    std::unique_ptr<VulkanSwapChain> swapChain;
+
+    VkResult InitVulkan(uint32_t width, uint32_t height);
 };
 
 #endif //VKNDKEXAMPLE_RENDER_CORE_H

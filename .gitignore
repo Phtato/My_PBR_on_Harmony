@@ -12,3 +12,4 @@
 /.appanalyzer
 build-profile.json5
 entry/src/main/cpp/cmake-build-debug
+.idea/

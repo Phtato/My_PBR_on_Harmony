@@ -9,6 +9,8 @@ struct Settings
 {
     // todo 鸿蒙现在支持校验层了吗？
     bool enableValida;
+    VkExtent2D extent;
+    bool vsync;
 };
 
 #endif //VKNDKEXAMPLE_CONFIG_H
