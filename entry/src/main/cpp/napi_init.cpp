@@ -19,6 +19,9 @@
 #include "include/nativeStreamBuf.h"
 #include "include/VulkanConfig.h"
 
+// Forward declaration
+extern "C" napi_value entry(napi_env env, napi_callback_info info);
+
 // 全局 DeviceBuf 实例
 static DeviceBuf deviceBuf;
 
@@ -190,7 +193,8 @@ static napi_value Init(napi_env env, napi_value exports) {
     napi_property_descriptor desc[] = {
         {"transferSandboxPath", nullptr, &TransferSandboxPath, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"sendResourceManagerInstance", nullptr, &createResourceManagerInstance, nullptr, nullptr, nullptr,
-         napi_default, nullptr}
+         napi_default, nullptr},
+        {"start", nullptr, &entry, nullptr, nullptr, nullptr, napi_default, nullptr}
 
     };
     napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);

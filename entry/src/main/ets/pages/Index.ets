@@ -1,5 +1,5 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import testNapi from 'libentry.so';
+import testNapi, { start } from 'libentry.so';
 import { common } from '@kit.AbilityKit';
 import { taskpool } from '@kit.ArkTS';
 import fs from '@ohos.file.fs';
@@ -7,10 +7,10 @@ import fs from '@ohos.file.fs';
 const DOMAIN = 0x0000;
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
   private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-
+  @Local started:boolean = false;
   aboutToAppear(): void {
 
     let sandboxPath = this.context.filesDir;
@@ -19,7 +19,7 @@ struct Index {
   }
 
   build() {
-    Row() {
+    Stack() {
       XComponent({ id: 'xcomponentId', type: XComponentType.SURFACE, libraryname: 'entry' })
         .width("100%")
         .height("100%")
@@ -29,6 +29,14 @@ struct Index {
         .onAppear(() => {
 
         })
+
+      Button()
+        .onClick(()=>{
+            start();
+        })
+        .enabled(!this.started)
+        .width(100)
+        .height(50)
     }
   }
 }

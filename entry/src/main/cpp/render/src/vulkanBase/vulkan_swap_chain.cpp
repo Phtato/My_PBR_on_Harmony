@@ -2,20 +2,22 @@
 // Created by bilibili on 2026/2/24.
 //
 
-#include "render/include/vulkanSwapChain.h"
+#include "render/include/vulkanBase/vulkan_swap_chain.h"
 
 #include <vulkan/vulkan_ohos.h>
 
 #include "VulkanConfig.h"
 #include "render/include/common.h"
 
-VulkanSwapChain::VulkanSwapChain(VkInstance instance, Settings settings, VkPhysicalDevice physicalDevice, VkDevice device)
+VulkanSwapChain::VulkanSwapChain(VkInstance instance, Settings settings, VulkanDevice &device)
     : instance_(instance),
       settings_(settings),
-      physical_device_(physicalDevice),
       device_(device)
 {
-
+    CreateSurface();
+	InitSurface();
+	// todo 这个写法是不对的，暂时懒得改
+	CreateSwapChain(&settings_.extent.width, &settings_.extent.height);
 }
 
 VkResult VulkanSwapChain::CreateSurface()
@@ -33,14 +35,14 @@ VkResult VulkanSwapChain::CreateSurface()
 void VulkanSwapChain::InitSurface()
 {
     uint32_t queueCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(device_.physical_device_, &queueCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueProps(queueCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device_, &queueCount, queueProps.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(device_.physical_device_, &queueCount, queueProps.data());
 
     std::vector<VkBool32> supportsPresent(queueCount);
     for (uint32_t i = 0; i < queueCount; i++)
     {
-        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device_, i, surface_, &supportsPresent[i]);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device_.physical_device_, i, surface_, &supportsPresent[i]);
     }
 
     uint32_t graphicsQueueNodeIndex = UINT32_MAX;
@@ -85,10 +87,10 @@ void VulkanSwapChain::InitSurface()
 
     // Get a list of supported surface formats
     uint32_t formatCount;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device_, surface_, &formatCount, NULL));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(device_.physical_device_, surface_, &formatCount, NULL));
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device_, surface_, &formatCount, surfaceFormats.data()));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(device_.physical_device_, surface_, &formatCount, surfaceFormats.data()));
 
     VkSurfaceFormatKHR selectedFormat = surfaceFormats[0];
 
@@ -125,13 +127,13 @@ VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
     // todo 还需要考虑swapChain是被重新创建而非新建的情况，尽管这在手机上应该不常见吧....
     // 获取 surface 的能力集
     VkSurfaceCapabilitiesKHR surfCaps;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device_, surface_, &surfCaps));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device_.physical_device_, surface_, &surfCaps));
 
     // 获取支持的 present 模式
     uint32_t presentModeCount;
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device_, surface_, &presentModeCount, nullptr));
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(device_.physical_device_, surface_, &presentModeCount, nullptr));
     std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device_, surface_, &presentModeCount, presentModes.data()));
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(device_.physical_device_, surface_, &presentModeCount, presentModes.data()));
 
     if (surfCaps.currentExtent.width == (uint32_t)-1)
     {
@@ -216,7 +218,7 @@ VkResult VulkanSwapChain::CreateSwapChain(uint32_t *width, uint32_t *height)
 
 		// Set additional usage flag for blitting from the swapchain images if supported
 		VkFormatProperties formatProps;
-		vkGetPhysicalDeviceFormatProperties(physical_device_, color_format_, &formatProps);
+		vkGetPhysicalDeviceFormatProperties(device_.physical_device_, color_format_, &formatProps);
 		if ((formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR) || (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT)) {
 			swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 		}
