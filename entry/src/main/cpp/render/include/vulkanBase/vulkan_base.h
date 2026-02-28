@@ -1,7 +1,3 @@
-//
-// Created by bilibili on 2026/2/10.
-//
-
 #ifndef VKNDKEXAMPLE_RENDER_CORE_H
 #define VKNDKEXAMPLE_RENDER_CORE_H
 
@@ -44,7 +40,7 @@ private:
 
     void setupFrameBuffer();
 public:
-    VkResult InitVulkan(uint32_t width, uint32_t height);
+    VkResult InitVulkan(Settings settings);
     VkResult prepare();
 
 protected:

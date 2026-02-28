@@ -1,7 +1,3 @@
-//
-// Created by bilibili on 2026/2/25.
-//
-
 #ifndef VKNDKEXAMPLE_VULKAN_DEVICE_H
 #define VKNDKEXAMPLE_VULKAN_DEVICE_H
 

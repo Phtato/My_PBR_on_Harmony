@@ -1,7 +1,3 @@
-//
-// Created by bilibili on 2026/2/24.
-//
-
 #ifndef VKNDKEXAMPLE_VULKAN_SWAP_CHAIN_H
 #define VKNDKEXAMPLE_VULKAN_SWAP_CHAIN_H
 #include <vector>

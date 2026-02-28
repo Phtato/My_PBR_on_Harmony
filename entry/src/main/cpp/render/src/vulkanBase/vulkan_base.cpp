@@ -8,12 +8,13 @@
 #include "VulkanConfig.h"
 #include "render/include/common.h"
 
-VkResult VulkanBase::InitVulkan(uint32_t width, uint32_t height)
+VkResult VulkanBase::InitVulkan(Settings settings)
 {
+	settings_ = settings;
     std::cout << "[Vulkan] Creating instance..." << std::endl;
     VK_CHECK(CreateInstance());
 
-    if (settings_.enableValida) {
+    if (settings_.enableValidation) {
         // todo 鸿蒙现在是否支持了？
     }
 
@@ -46,7 +47,7 @@ VkResult VulkanBase::CreateInstance()
     instanceExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     instanceExtensions.push_back(VK_OHOS_SURFACE_EXTENSION_NAME);
 
-    if (this->settings_.enableValida)
+    if (this->settings_.enableValidation)
     {
         instanceExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
     }

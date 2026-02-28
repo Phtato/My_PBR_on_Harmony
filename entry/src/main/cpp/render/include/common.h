@@ -1,7 +1,3 @@
-//
-// Created by bilibili on 2026/2/11.
-//
-
 #ifndef VKNDKEXAMPLE_COMMON_H
 #define VKNDKEXAMPLE_COMMON_H
 #include <stdexcept>

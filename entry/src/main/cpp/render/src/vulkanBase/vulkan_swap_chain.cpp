@@ -1,10 +1,7 @@
-//
-// Created by bilibili on 2026/2/24.
-//
-
 #include "render/include/vulkanBase/vulkan_swap_chain.h"
 
 #include <vulkan/vulkan_ohos.h>
+#include <vulkan/vulkan_core.h>
 
 #include "VulkanConfig.h"
 #include "render/include/common.h"
