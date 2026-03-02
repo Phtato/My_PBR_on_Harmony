@@ -147,6 +147,11 @@ uint32_t VulkanDevice::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags pr
     }
 }
 
+uint32_t VulkanDevice::FindMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties) const
+{
+    return GetMemoryType(typeBits, properties);
+}
+
 VkCommandPool VulkanDevice::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
 {
     VkCommandPoolCreateInfo cmdPoolInfo = {};

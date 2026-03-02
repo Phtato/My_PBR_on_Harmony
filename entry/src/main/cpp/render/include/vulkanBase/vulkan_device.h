@@ -25,6 +25,7 @@ public:
     ~VulkanDevice();
 
     operator VkDevice() const { return logical_device_; }
+    VkDevice GetVkDevice() const { return logical_device_; }
 
     VkResult SelectPhysicalDevice(VkInstance instance);
 
@@ -35,6 +36,7 @@ public:
                                   VkQueueFlags requestedQueueTypes = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT);
 
     uint32_t GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound = nullptr) const;
+    uint32_t FindMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties) const;
 
     VkCommandPool CreateCommandPool(uint32_t queueFamilyIndex,
                                      VkCommandPoolCreateFlags createFlags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);

@@ -1,21 +1,18 @@
+file(GLOB_RECURSE RENDER_SOURCES
+    "src/**/*.cpp"
+    "src/**/*.cc"
+)
+file(GLOB_RECURSE RENDER_HEADERS
+    "include/**/*.h"
+    "include/**/*.hpp"
+)
+
 add_library(render STATIC
     main.cpp
-        include/vulkanBase/vulkan_base.h
-        src/vulkanBase/vulkan_base.cpp
-        include/common.h
-        include/config.h
-        src/vulkanBase/vulkan_swap_chain.cpp
-        include/vulkanBase/vulkan_swap_chain.h
-        src/vulkanBase/vulkan_device.cpp
-        include/vulkanBase/vulkan_device.h
-        src/application.cpp
-        include/application.h
-        src/Scene/Scene.cpp
-        include/Scene/Scene.h
-        src/Scene/Camera.cpp
-        include/Scene/Camera.h
-        include/Scene/UniformBuffer.h
-        include/Scene/Renderable.h
+    ${RENDER_SOURCES}
+    ${RENDER_HEADERS}
+        src/vulkanBase/vulkan_image.cpp
+        include/vulkanBase/vulkan_image.h
 )
 
 # Enable C++20 module support for render library
