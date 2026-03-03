@@ -11,8 +11,6 @@ add_library(render STATIC
     main.cpp
     ${RENDER_SOURCES}
     ${RENDER_HEADERS}
-        src/vulkanBase/vulkan_image.cpp
-        include/vulkanBase/vulkan_image.h
 )
 
 # Enable C++20 module support for render library

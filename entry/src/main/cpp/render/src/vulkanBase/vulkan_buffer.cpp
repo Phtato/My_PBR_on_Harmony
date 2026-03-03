@@ -2,11 +2,11 @@
 #include "render/include/vulkanBase/vulkan_buffer.h"
 
 
-vulkan_buffer::vulkan_buffer(const VulkanDevice &device,
-                             VkDeviceSize size,
-                             VkBufferUsageFlags usage,
-                             VkMemoryPropertyFlags props,
-                             VkSharingMode sharingMode)
+VulkanBuffer::VulkanBuffer(const VulkanDevice &device,
+                           VkDeviceSize size,
+                           VkBufferUsageFlags usage,
+                           VkMemoryPropertyFlags props,
+                           VkSharingMode sharingMode)
     : device_(device),
       size_(size)
 {
@@ -32,11 +32,11 @@ vulkan_buffer::vulkan_buffer(const VulkanDevice &device,
     VK_CHECK(vkBindBufferMemory(device_.logical_device_, buffer_, memory_, 0));
 }
 
-vulkan_buffer::~vulkan_buffer() {
+VulkanBuffer::~VulkanBuffer() {
     Cleanup();
 }
 
-void vulkan_buffer::Map() {
+void VulkanBuffer::Map() {
     VK_CHECK(vkMapMemory(
         device_.logical_device_,
         memory_,           // 要映射的GPU内存
@@ -47,19 +47,19 @@ void vulkan_buffer::Map() {
     ));
 }
 
-void vulkan_buffer::Unmap() {
+void VulkanBuffer::Unmap() {
     if (mapped_) {
         vkUnmapMemory(device_.logical_device_, memory_);
         mapped_ = nullptr;
     }
 }
 
-void vulkan_buffer::CopyTo(const void* data, VkDeviceSize copySize) {
+void VulkanBuffer::CopyTo(const void* data, VkDeviceSize copySize) {
     if (!mapped_) Map();
     memcpy(mapped_, data, copySize);  // 直接用CPU拷贝
 }
 
-void vulkan_buffer::Flush() {
+void VulkanBuffer::Flush() {
     VkMappedMemoryRange range{};
     range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     range.memory = memory_;
@@ -68,7 +68,7 @@ void vulkan_buffer::Flush() {
     vkFlushMappedMemoryRanges(device_.logical_device_, 1, &range);
 }
 
-void vulkan_buffer::Cleanup() {
+void VulkanBuffer::Cleanup() {
     // 如果内存仍在映射状态，先取消映射
     if (mapped_) {
         Unmap();

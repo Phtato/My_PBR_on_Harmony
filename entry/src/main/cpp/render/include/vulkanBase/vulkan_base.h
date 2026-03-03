@@ -1,6 +1,7 @@
 #ifndef VKNDKEXAMPLE_RENDER_CORE_H
 #define VKNDKEXAMPLE_RENDER_CORE_H
 
+#include <array>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -14,6 +15,14 @@ class VulkanBase
 private:
     VkInstance instance_ = VK_NULL_HANDLE;
 
+    struct FrameData {
+        VkCommandBuffer cmd;
+        VkSemaphore     imageAvailableSemaphore;
+        VkSemaphore     renderFinishedSemaphore;
+        VkFence         inFlightFence;
+    };
+    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+    std::array<FrameData, MAX_FRAMES_IN_FLIGHT> frames_;
 
     struct MultisampleTarget {
         struct {

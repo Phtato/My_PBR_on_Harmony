@@ -8,7 +8,7 @@
 #include "vulkan_device.h"
 
 
-class vulkan_buffer
+class VulkanBuffer
 {
 public:
     /**
@@ -33,22 +33,22 @@ public:
      * @param sharingMode 共享模式，默认为 VK_SHARING_MODE_EXCLUSIVE（独占模式）
      *                    当前实现仅支持独占模式
      */
-    vulkan_buffer(const VulkanDevice& device,
+    VulkanBuffer(const VulkanDevice& device,
                   VkDeviceSize size,
                   VkBufferUsageFlags usage,
                   VkMemoryPropertyFlags props,
                   VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE);
 
     // 析构函数：自动清理资源
-    ~vulkan_buffer();
+    ~VulkanBuffer();
 
     // 禁用拷贝
-    vulkan_buffer(const vulkan_buffer&) = delete;
-    vulkan_buffer& operator=(const vulkan_buffer&) = delete;
+    VulkanBuffer(const VulkanBuffer&) = delete;
+    VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 
     // 允许移动
-    vulkan_buffer(vulkan_buffer&& other) noexcept;
-    vulkan_buffer& operator=(vulkan_buffer&& other) noexcept;
+    VulkanBuffer(VulkanBuffer&& other) noexcept;
+    VulkanBuffer& operator=(VulkanBuffer&& other) noexcept;
 
     // 获取底层 VkBuffer（类似 vk::raii 的 operator*）
     VkBuffer get() const { return buffer_; }
