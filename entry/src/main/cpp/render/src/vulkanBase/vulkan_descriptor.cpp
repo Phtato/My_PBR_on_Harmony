@@ -55,8 +55,6 @@ VulkanDescriptorPool& VulkanDescriptorPool::operator=(VulkanDescriptorPool&& oth
 
 VkDescriptorSet VulkanDescriptorPool::Allocate(VkDescriptorSetLayout layout)
 {
-    // TODO
-
 /*
     typedef struct VkDescriptorSetAllocateInfo {
         VkStructureType                 sType;
@@ -110,7 +108,6 @@ VulkanDescriptorLayout::VulkanDescriptorLayout(VkDevice device,
                                                const std::vector<VkDescriptorSetLayoutBinding>& bindings)
     : device_(device)
 {
-    // TODO
     /*
     typedef struct VkDescriptorSetLayoutCreateInfo {
         VkStructureType                        sType;
