@@ -29,9 +29,11 @@ add_definitions(-DVK_USE_PLATFORM_OHOS)
 include_directories(${NATIVERENDER_ROOT_PATH}
                     ${NATIVERENDER_ROOT_PATH}/include)
 
+
 add_library(entry SHARED napi_init.cpp
         VulkanConfig.cpp
-        include/nativeStreamBuf.h)
+        include/nativeStreamBuf.h
+        include/common.h)
 target_link_libraries(entry
     PUBLIC libace_napi.z.so
     PUBLIC libace_ndk.z.so
@@ -44,3 +46,4 @@ add_subdirectory(render)
 
 target_link_libraries(entry PUBLIC render)
 target_compile_features(entry PUBLIC cxx_std_20)
+

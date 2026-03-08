@@ -15,7 +15,5 @@ extern "C" napi_value entry(napi_env env, napi_callback_info info)
 {
     auto app = std::make_unique<Application>();
 
-
-
     return nullptr;
 }
