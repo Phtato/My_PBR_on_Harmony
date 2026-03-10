@@ -5,11 +5,13 @@
 
 VulkanDevice::~VulkanDevice()
 {
-    if (command_pool_) {
+    if (command_pool_ && logical_device_) {
         vkDestroyCommandPool(logical_device_, command_pool_, nullptr);
+        command_pool_ = nullptr;
     }
     if (logical_device_) {
         vkDestroyDevice(logical_device_, nullptr);
+        logical_device_ = nullptr;
     }
 }
 
