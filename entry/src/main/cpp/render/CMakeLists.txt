@@ -43,9 +43,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm VulkanHpp)
 
 # Include directories
+# NOTE: vulkan-hpp include paths are provided automatically via VulkanHpp CMake target
 target_include_directories(render PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty
-    ${vulkanhpp_SOURCE_DIR}/include  # 提供 <vulkan/vulkan.hpp>
 )
 
 add_custom_command(
@@ -56,5 +56,9 @@ add_custom_command(
     COMMAND glslc -fshader-stage=frag ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader.frag -o ${SHADER_OUTPUT_DIR}/frag.spv
 )
 
-# Link Vulkan library and glm
-target_link_libraries(render PUBLIC vulkan glm::glm)
+# Link libraries
+# - VulkanHpp: Header-only library providing C++ wrapper for Vulkan C API
+#              Automatically provides INTERFACE include paths and compile definitions
+# - vulkan: Vulkan loader library from OHOS/HarmonyOS SDK
+# - glm::glm: GLM math library
+target_link_libraries(render PUBLIC VulkanHpp vulkan glm::glm)
