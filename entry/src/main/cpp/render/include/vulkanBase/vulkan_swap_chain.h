@@ -34,8 +34,6 @@ private:
     Settings settings_;
 
     std::vector<VkImage> images_;
-    // VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
-    // VkDevice device_;
     VulkanDevice device_;
     VkSurfaceKHR surface_ = VK_NULL_HANDLE;
     VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;

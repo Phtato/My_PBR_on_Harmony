@@ -49,10 +49,11 @@ private:
 
     VkResult GetDeviceCaps();
 
+    VkResult prepare();
+
     void setupFrameBuffer();
 public:
     VkResult InitVulkan(Settings settings);
-    VkResult prepare();
 
     /**
      * @brief 获取全局 Descriptor Pool

@@ -66,7 +66,6 @@ VkResult VulkanBase::CreateInstance()
     return vkCreateInstance(&createInfo, nullptr, &instance_);
 }
 
-
 VkResult VulkanBase::GetDeviceCaps()
 {
 	/*
@@ -98,7 +97,7 @@ VkResult VulkanBase::prepare()
 
     swap_chain_ = std::make_unique<VulkanSwapChain>(instance_, settings_, *device_);
 
-    	/*
+    /*
 		Command pool
 	*/
 	VkCommandPoolCreateInfo cmdPoolInfo = {};
