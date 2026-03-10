@@ -15,14 +15,8 @@ class VulkanSwapChain
 {
 public:
     VulkanSwapChain(VkInstance instance, Settings settings, VulkanDevice &device);
-    VkResult CreateSurface();
-    VkResult CreateSwapChain(uint32_t *width, uint32_t *height);
-    void InitSurface();
-    uint32_t queue_node_index_ = UINT32_MAX;
-    VkFormat color_format_;
-    VkColorSpaceKHR color_space_;
-    uint32_t image_count_;
-    std::vector<SwapChainBuffer> buffers_;
+
+    std::vector<VkImage> images_;
 
     VulkanSwapChain(const VulkanSwapChain&) = delete;
     VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
@@ -32,11 +26,17 @@ public:
 private:
     VkInstance instance_;
     Settings settings_;
-
-    std::vector<VkImage> images_;
+    uint32_t queue_node_index_ = UINT32_MAX;
+    VkFormat color_format_;
+    VkColorSpaceKHR color_space_;
+    uint32_t image_count_;
+    std::vector<SwapChainBuffer> buffers_;
     VulkanDevice device_;
     VkSurfaceKHR surface_ = VK_NULL_HANDLE;
     VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
+    void InitSurface();
+    VkResult CreateSurface();
+    VkResult CreateSwapChain(uint32_t *width, uint32_t *height);
 };
 
 
