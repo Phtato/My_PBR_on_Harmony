@@ -285,6 +285,7 @@ VkResult VulkanBase::prepare()
 	*/
 	std::cout << "[Vulkan] Creating framebuffers..." << std::endl;
 	setupFrameBuffer();
+    return VK_SUCCESS;
 }
 
 void VulkanBase::setupFrameBuffer()
