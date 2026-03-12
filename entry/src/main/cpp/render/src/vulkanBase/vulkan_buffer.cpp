@@ -20,16 +20,16 @@ VulkanBuffer::VulkanBuffer(const VulkanDevice &device,
         throw std::runtime_error("only support VK_SHARING_MODE_EXCLUSIVE currently");
     }
 
-    VK_CHECK(vkCreateBuffer(device_.logical_device_, &info, nullptr, &buffer_));
+    VK_CHECK(vkCreateBuffer(device_.device_, &info, nullptr, &buffer_));
 
     VkMemoryRequirements memReqs;
-    vkGetBufferMemoryRequirements(device_.logical_device_, buffer_, &memReqs);
+    vkGetBufferMemoryRequirements(device_.device_, buffer_, &memReqs);
     VkMemoryAllocateInfo memAllocInfo{};
     memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memAllocInfo.allocationSize = memReqs.size;
     memAllocInfo.memoryTypeIndex = device_.FindMemoryType(memReqs.memoryTypeBits, props);
-    VK_CHECK(vkAllocateMemory(device_.logical_device_, &memAllocInfo, nullptr, &memory_));
-    VK_CHECK(vkBindBufferMemory(device_.logical_device_, buffer_, memory_, 0));
+    VK_CHECK(vkAllocateMemory(device_.device_, &memAllocInfo, nullptr, &memory_));
+    VK_CHECK(vkBindBufferMemory(device_.device_, buffer_, memory_, 0));
 }
 
 VulkanBuffer::~VulkanBuffer() {
@@ -38,7 +38,7 @@ VulkanBuffer::~VulkanBuffer() {
 
 void VulkanBuffer::Map() {
     VK_CHECK(vkMapMemory(
-        device_.logical_device_,
+        device_.device_,
         memory_,           // 要映射的GPU内存
         0,                 // 偏移量
         size_,             // 映射大小
@@ -49,7 +49,7 @@ void VulkanBuffer::Map() {
 
 void VulkanBuffer::Unmap() {
     if (mapped_) {
-        vkUnmapMemory(device_.logical_device_, memory_);
+        vkUnmapMemory(device_.device_, memory_);
         mapped_ = nullptr;
     }
 }
@@ -65,7 +65,7 @@ void VulkanBuffer::Flush() {
     range.memory = memory_;
     range.offset = 0;
     range.size = size_;
-    vkFlushMappedMemoryRanges(device_.logical_device_, 1, &range);
+    vkFlushMappedMemoryRanges(device_.device_, 1, &range);
 }
 
 void VulkanBuffer::Cleanup() {
@@ -76,13 +76,13 @@ void VulkanBuffer::Cleanup() {
 
     // 销毁 Buffer 对象
     if (buffer_ != VK_NULL_HANDLE) {
-        vkDestroyBuffer(device_.logical_device_, buffer_, nullptr);
+        vkDestroyBuffer(device_.device_, buffer_, nullptr);
         buffer_ = VK_NULL_HANDLE;
     }
 
     // 释放设备内存
     if (memory_ != VK_NULL_HANDLE) {
-        vkFreeMemory(device_.logical_device_, memory_, nullptr);
+        vkFreeMemory(device_.device_, memory_, nullptr);
         memory_ = VK_NULL_HANDLE;
     }
 }

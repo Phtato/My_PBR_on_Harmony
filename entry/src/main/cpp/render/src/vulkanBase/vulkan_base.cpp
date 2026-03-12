@@ -71,7 +71,7 @@ VkResult VulkanBase::GetDeviceCaps()
 	/*
 	Graphics queue
 	*/
-	vkGetDeviceQueue(device_->logical_device_, device_->queue_family_indices_.graphics, 0, &queue_);
+	vkGetDeviceQueue(device_->device_, device_->queue_family_indices_.graphics, 0, &queue_);
 
 	/*
 		Suitable depth format
@@ -92,7 +92,7 @@ VkResult VulkanBase::GetDeviceCaps()
 
 VkResult VulkanBase::prepare()
 {
-    VkDevice& device = device_->logical_device_;
+    VkDevice& device = device_->device_;
     VkPhysicalDevice& physicalDevice = device_->physical_device_;
 
     swap_chain_ = std::make_unique<VulkanSwapChain>(instance_, settings_, *device_);
@@ -311,10 +311,10 @@ void VulkanBase::setupFrameBuffer()
 		imageCI.samples = settings_.sampleCount;
 		imageCI.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		imageCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		VK_CHECK(vkCreateImage(device_->logical_device_, &imageCI, nullptr, &multisampleTarget.color.image));
+		VK_CHECK(vkCreateImage(device_->device_, &imageCI, nullptr, &multisampleTarget.color.image));
 
 		VkMemoryRequirements memReqs;
-		vkGetImageMemoryRequirements(device_->logical_device_, multisampleTarget.color.image, &memReqs);
+		vkGetImageMemoryRequirements(device_->device_, multisampleTarget.color.image, &memReqs);
 		VkMemoryAllocateInfo memAllocInfo{};
 		memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		memAllocInfo.allocationSize = memReqs.size;
@@ -323,8 +323,8 @@ void VulkanBase::setupFrameBuffer()
 		if (!lazyMemTypePresent) {
 			memAllocInfo.memoryTypeIndex = device_->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		}
-		VK_CHECK(vkAllocateMemory(device_->logical_device_, &memAllocInfo, nullptr, &multisampleTarget.color.memory));
-		vkBindImageMemory(device_->logical_device_, multisampleTarget.color.image, multisampleTarget.color.memory, 0);
+		VK_CHECK(vkAllocateMemory(device_->device_, &memAllocInfo, nullptr, &multisampleTarget.color.memory));
+		vkBindImageMemory(device_->device_, multisampleTarget.color.image, multisampleTarget.color.memory, 0);
 
 		// Create image view for the MSAA target
 		VkImageViewCreateInfo imageViewCI{};
@@ -339,7 +339,7 @@ void VulkanBase::setupFrameBuffer()
 		imageViewCI.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		imageViewCI.subresourceRange.levelCount = 1;
 		imageViewCI.subresourceRange.layerCount = 1;
-		VK_CHECK(vkCreateImageView(device_->logical_device_, &imageViewCI, nullptr, &multisampleTarget.color.view));
+		VK_CHECK(vkCreateImageView(device_->device_, &imageViewCI, nullptr, &multisampleTarget.color.view));
 
 		// Depth target
 		imageCI.imageType = VK_IMAGE_TYPE_2D;
@@ -354,17 +354,17 @@ void VulkanBase::setupFrameBuffer()
 		imageCI.samples = settings_.sampleCount;
 		imageCI.usage = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 		imageCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		VK_CHECK(vkCreateImage(device_->logical_device_, &imageCI, nullptr, &multisampleTarget.depth.image));
+		VK_CHECK(vkCreateImage(device_->device_, &imageCI, nullptr, &multisampleTarget.depth.image));
 
-		vkGetImageMemoryRequirements(device_->logical_device_, multisampleTarget.depth.image, &memReqs);
+		vkGetImageMemoryRequirements(device_->device_, multisampleTarget.depth.image, &memReqs);
 		memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		memAllocInfo.allocationSize = memReqs.size;
 		memAllocInfo.memoryTypeIndex = device_->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT, &lazyMemTypePresent);
 		if (!lazyMemTypePresent) {
 			memAllocInfo.memoryTypeIndex = device_->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		}
-		VK_CHECK(vkAllocateMemory(device_->logical_device_, &memAllocInfo, nullptr, &multisampleTarget.depth.memory));
-		vkBindImageMemory(device_->logical_device_, multisampleTarget.depth.image, multisampleTarget.depth.memory, 0);
+		VK_CHECK(vkAllocateMemory(device_->device_, &memAllocInfo, nullptr, &multisampleTarget.depth.memory));
+		vkBindImageMemory(device_->device_, multisampleTarget.depth.image, multisampleTarget.depth.memory, 0);
 
 		// Create image view for the MSAA target
 		imageViewCI.image = multisampleTarget.depth.image;
@@ -377,7 +377,7 @@ void VulkanBase::setupFrameBuffer()
 		imageViewCI.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 		imageViewCI.subresourceRange.levelCount = 1;
 		imageViewCI.subresourceRange.layerCount = 1;
-		VK_CHECK(vkCreateImageView(device_->logical_device_, &imageViewCI, nullptr, &multisampleTarget.depth.view));
+		VK_CHECK(vkCreateImageView(device_->device_, &imageViewCI, nullptr, &multisampleTarget.depth.view));
 	}
 
 
@@ -416,15 +416,15 @@ void VulkanBase::setupFrameBuffer()
 	depthStencilView.subresourceRange.layerCount = 1;
 
 	VkMemoryRequirements memReqs;
-	VK_CHECK(vkCreateImage(device_->logical_device_, &image, nullptr, &depthStencil.image));
-	vkGetImageMemoryRequirements(device_->logical_device_, depthStencil.image, &memReqs);
+	VK_CHECK(vkCreateImage(device_->device_, &image, nullptr, &depthStencil.image));
+	vkGetImageMemoryRequirements(device_->device_, depthStencil.image, &memReqs);
 	mem_alloc.allocationSize = memReqs.size;
 	mem_alloc.memoryTypeIndex = device_->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	VK_CHECK(vkAllocateMemory(device_->logical_device_, &mem_alloc, nullptr, &depthStencil.mem));
-	VK_CHECK(vkBindImageMemory(device_->logical_device_, depthStencil.image, depthStencil.mem, 0));
+	VK_CHECK(vkAllocateMemory(device_->device_, &mem_alloc, nullptr, &depthStencil.mem));
+	VK_CHECK(vkBindImageMemory(device_->device_, depthStencil.image, depthStencil.mem, 0));
 
 	depthStencilView.image = depthStencil.image;
-	VK_CHECK(vkCreateImageView(device_->logical_device_, &depthStencilView, nullptr, &depthStencil.view));
+	VK_CHECK(vkCreateImageView(device_->device_, &depthStencilView, nullptr, &depthStencil.view));
 
 	//
 
@@ -459,7 +459,7 @@ void VulkanBase::setupFrameBuffer()
 		else {
 			attachments[0] = swap_chain_->buffers_[i].view;
 		}
-		VK_CHECK(vkCreateFramebuffer(device_->logical_device_, &frameBufferCI, nullptr, &frame_buffers_[i]));
+		VK_CHECK(vkCreateFramebuffer(device_->device_, &frameBufferCI, nullptr, &frame_buffers_[i]));
 	}
 	std::cout << "[SetupFrameBuffer] All " << frame_buffers_.size() << " framebuffers created successfully" << std::endl;
 }

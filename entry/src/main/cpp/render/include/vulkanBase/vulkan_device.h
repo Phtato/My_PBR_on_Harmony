@@ -3,18 +3,19 @@
 
 #include <vector>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 class VulkanDevice
 {
 public:
-    VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
-    VkDevice logical_device_ = VK_NULL_HANDLE;
+    vk::PhysicalDevice physical_device_;
+    vk::Device device_;
     VkPhysicalDeviceProperties properties_;
     VkPhysicalDeviceFeatures features_;
     VkPhysicalDeviceFeatures enabled_features_;
     VkPhysicalDeviceMemoryProperties memory_properties_;
     std::vector<VkQueueFamilyProperties> queue_family_properties_;
-    VkCommandPool command_pool_ = VK_NULL_HANDLE;
+    vk::UniqueCommandPool command_pool_;
 
     struct {
         uint32_t graphics;
@@ -24,8 +25,8 @@ public:
     VulkanDevice() = default;
     ~VulkanDevice();
 
-    operator VkDevice() const { return logical_device_; }
-    VkDevice GetVkDevice() const { return logical_device_; }
+    operator vk::Device() const { return device_; }
+    vk::Device GetVkDevice() const { return device_; }
 
     VkResult SelectPhysicalDevice(VkInstance instance);
 

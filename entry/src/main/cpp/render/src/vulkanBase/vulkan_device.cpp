@@ -5,13 +5,12 @@
 
 VulkanDevice::~VulkanDevice()
 {
-    if (command_pool_ && logical_device_) {
-        vkDestroyCommandPool(logical_device_, command_pool_, nullptr);
-        command_pool_ = nullptr;
+    if (command_pool_ && device_) {
+        vkDestroyCommandPool(device_, command_pool_.get(), nullptr);
     }
-    if (logical_device_) {
-        vkDestroyDevice(logical_device_, nullptr);
-        logical_device_ = nullptr;
+    if (device_) {
+        vkDestroyDevice(device_, nullptr);
+        device_ = nullptr;
     }
 }
 
@@ -117,7 +116,7 @@ VkResult VulkanDevice::CreateLogicalDevice(VkPhysicalDeviceFeatures enabledFeatu
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
     }
 
-    VkResult result = vkCreateDevice(physical_device_, &deviceCreateInfo, nullptr, &logical_device_);
+    VkResult result = vkCreateDevice(physical_device_, &deviceCreateInfo, nullptr, device_);
 
     if (result == VK_SUCCESS) {
         command_pool_ = CreateCommandPool(queue_family_indices_.graphics);
@@ -161,6 +160,6 @@ VkCommandPool VulkanDevice::CreateCommandPool(uint32_t queueFamilyIndex, VkComma
     cmdPoolInfo.queueFamilyIndex = queueFamilyIndex;
     cmdPoolInfo.flags = createFlags;
     VkCommandPool cmdPool;
-    VK_CHECK(vkCreateCommandPool(logical_device_, &cmdPoolInfo, nullptr, &cmdPool));
+    VK_CHECK(vkCreateCommandPool(device_, &cmdPoolInfo, nullptr, &cmdPool));
     return cmdPool;
 }

@@ -56,9 +56,5 @@ add_custom_command(
     COMMAND glslc -fshader-stage=frag ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader.frag -o ${SHADER_OUTPUT_DIR}/frag.spv
 )
 
-# Link libraries
-# - VulkanHpp: Header-only library providing C++ wrapper for Vulkan C API
-#              Automatically provides INTERFACE include paths and compile definitions
-# - vulkan: Vulkan loader library from OHOS/HarmonyOS SDK
-# - glm::glm: GLM math library
+# Link Vulkan library, vulkan-hpp and glm
 target_link_libraries(render PUBLIC VulkanHpp vulkan glm::glm)
